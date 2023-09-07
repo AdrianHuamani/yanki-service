@@ -1,5 +1,6 @@
 package com.bcp.yanki.web;
 
+import com.bcp.yanki.domain.DebitCardResponse;
 import com.bcp.yanki.domain.User;
 import com.bcp.yanki.service.DocumentTypeService;
 import com.bcp.yanki.service.UserService;
@@ -16,6 +17,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -58,5 +61,11 @@ public class UserController {
                         .body(userEntity));
     }
 
+    @GetMapping("debitCards/{customerInternalCode}")
+    public Mono<ResponseEntity<Flux<DebitCardResponse>>> getAll(@PathVariable("customerInternalCode") String customerInternalCode){
+        log.info("getAll executed");
+        return Mono.just(ResponseEntity.ok()
+                .body(userService.findByCustomerInternalCode(customerInternalCode)));
+    }
 
 }

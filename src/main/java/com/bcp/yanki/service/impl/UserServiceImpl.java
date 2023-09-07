@@ -1,6 +1,7 @@
 package com.bcp.yanki.service.impl;
 
 import com.bcp.yanki.common.ErrorMessage;
+import com.bcp.yanki.domain.DebitCardResponse;
 import com.bcp.yanki.domain.User;
 import com.bcp.yanki.exception.FunctionalException;
 import com.bcp.yanki.repository.DocumentTypeRepository;
@@ -13,8 +14,16 @@ import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.MonoProcessor;
+import io.reactivex.rxjava3.core.FlowableConverter;
 
 import java.time.Instant;
 
@@ -29,11 +38,25 @@ public class UserServiceImpl implements UserService {
     private final DocumentTypeRepository documentTypeRepository;
     private final UserMapper userMapper;
 
+
+
+    private final WebClient webClient = WebClient.builder().baseUrl("http://localhost:9042/v1").defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).build();
+
+    @Override
+    public Flux<DebitCardResponse> findByCustomerInternalCode(String customerInternalCode) {
+
+        return this.webClient.get().uri("/debitCards/{customerInternalCode}", customerInternalCode)
+                .retrieve()
+                .bodyToFlux(DebitCardResponse.class);
+    }
+
     @Override
     public Flowable<User> findAll() {
         log.debug("findAll executed");
         return userRepository.findAll();
     }
+
+
 
     @Override
     public Maybe<User> findById(String id) {
